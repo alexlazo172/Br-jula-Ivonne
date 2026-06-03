@@ -1,0 +1,1210 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Mi Brújula</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --c: #2D6A4F;
+    --c-light: #EAF4EE;
+    --a: #7B3F6A;
+    --a-light: #F4EAF1;
+    --s: #1D3A5C;
+    --s-light: #EAF0F7;
+    --bg: #F8F5F0;
+    --white: #FFFFFF;
+    --ink: #1A1714;
+    --ink2: #6B6360;
+    --ink3: #B0ABA6;
+    --radius: 16px;
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    min-height: 100vh;
+    max-width: 420px;
+    margin: 0 auto;
+    padding-bottom: 100px;
+  }
+
+  /* ── TOP BAR ── */
+  .topbar {
+    padding: 52px 24px 20px;
+    position: sticky;
+    top: 0;
+    background: var(--bg);
+    z-index: 10;
+  }
+
+  .topbar-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+  }
+
+  .greeting {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 28px;
+    font-weight: 300;
+    line-height: 1.2;
+    color: var(--ink);
+  }
+
+  .greeting em { font-style: italic; }
+
+  .date-chip {
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink3);
+    padding-top: 4px;
+    text-align: right;
+    line-height: 1.6;
+  }
+
+  /* ── TABS ── */
+  .tabs {
+    display: flex;
+    gap: 6px;
+    padding: 0 24px;
+    margin-bottom: 20px;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .tabs::-webkit-scrollbar { display: none; }
+
+  .tab {
+    flex-shrink: 0;
+    padding: 7px 16px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 400;
+    border: 1.5px solid transparent;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: var(--white);
+    color: var(--ink2);
+    border-color: rgba(0,0,0,0.08);
+  }
+
+  .tab.active {
+    background: var(--ink);
+    color: white;
+    border-color: var(--ink);
+  }
+
+  /* ── SCREENS ── */
+  .screen { display: none; padding: 0 24px; }
+  .screen.active { display: block; }
+
+  /* ── DECISION SCREEN ── */
+  .decision-hero {
+    background: var(--white);
+    border-radius: var(--radius);
+    padding: 28px 24px;
+    margin-bottom: 16px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .decision-hero::before {
+    content: '';
+    position: absolute;
+    top: -40px; right: -40px;
+    width: 140px; height: 140px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--c-light), var(--a-light));
+    opacity: 0.6;
+  }
+
+  .decision-label {
+    font-size: 10px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--ink3);
+    margin-bottom: 12px;
+  }
+
+  .decision-question {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 24px;
+    font-weight: 400;
+    line-height: 1.4;
+    color: var(--ink);
+    margin-bottom: 20px;
+    position: relative;
+  }
+
+  .decision-input {
+    width: 100%;
+    background: var(--bg);
+    border: none;
+    border-radius: 10px;
+    padding: 14px 16px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    color: var(--ink);
+    resize: none;
+    outline: none;
+    min-height: 72px;
+    line-height: 1.6;
+  }
+
+  .decision-input::placeholder { color: var(--ink3); }
+
+  /* Value meters */
+  .value-meters {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin: 20px 0;
+  }
+
+  .meter-row {
+    background: var(--white);
+    border-radius: 12px;
+    padding: 14px 18px;
+  }
+
+  .meter-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+
+  .meter-name {
+    font-size: 13px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .meter-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .meter-label {
+    font-size: 11px;
+    color: var(--ink3);
+  }
+
+  .slider-wrap {
+    position: relative;
+    height: 36px;
+    display: flex;
+    align-items: center;
+  }
+
+  .slider-track {
+    position: absolute;
+    left: 0; right: 0;
+    height: 4px;
+    border-radius: 2px;
+    background: var(--bg);
+    overflow: visible;
+  }
+
+  .slider-fill {
+    position: absolute;
+    left: 50%;
+    height: 100%;
+    border-radius: 2px;
+    transition: all 0.1s;
+    transform-origin: left;
+  }
+
+  input[type=range] {
+    position: absolute;
+    width: 100%;
+    opacity: 0;
+    height: 36px;
+    cursor: pointer;
+    margin: 0;
+    z-index: 2;
+  }
+
+  .slider-thumb {
+    position: absolute;
+    width: 20px; height: 20px;
+    border-radius: 50%;
+    background: white;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.18);
+    left: 50%;
+    transform: translateX(-50%);
+    pointer-events: none;
+    transition: left 0.1s;
+    z-index: 1;
+    border: 2px solid;
+  }
+
+  .slider-center {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 1px;
+    height: 12px;
+    background: var(--ink3);
+    opacity: 0.3;
+    pointer-events: none;
+  }
+
+  .slider-labels {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 4px;
+    font-size: 9px;
+    letter-spacing: 0.08em;
+    color: var(--ink3);
+    text-transform: uppercase;
+  }
+
+  .decision-result {
+    background: var(--white);
+    border-radius: var(--radius);
+    padding: 20px;
+    text-align: center;
+    display: none;
+  }
+
+  .result-icon {
+    font-size: 36px;
+    margin-bottom: 8px;
+  }
+
+  .result-text {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 18px;
+    font-weight: 400;
+    line-height: 1.5;
+    color: var(--ink);
+  }
+
+  .result-sub {
+    font-size: 12px;
+    color: var(--ink2);
+    margin-top: 8px;
+    line-height: 1.6;
+  }
+
+  .btn-primary {
+    width: 100%;
+    padding: 14px;
+    border-radius: 12px;
+    border: none;
+    background: var(--ink);
+    color: white;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    margin-top: 14px;
+    transition: opacity 0.2s;
+  }
+
+  .btn-primary:active { opacity: 0.8; }
+
+  .btn-ghost {
+    width: 100%;
+    padding: 12px;
+    border-radius: 12px;
+    border: 1.5px solid rgba(0,0,0,0.10);
+    background: transparent;
+    color: var(--ink2);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    cursor: pointer;
+    margin-top: 8px;
+    transition: all 0.2s;
+  }
+
+  .btn-ghost:active { background: var(--bg); }
+
+  /* ── CHECK-IN SCREEN ── */
+  .checkin-header {
+    margin-bottom: 20px;
+  }
+
+  .checkin-header h2 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 26px;
+    font-weight: 300;
+    margin-bottom: 4px;
+  }
+
+  .checkin-header p {
+    font-size: 13px;
+    color: var(--ink2);
+    line-height: 1.5;
+  }
+
+  .value-card-mini {
+    border-radius: var(--radius);
+    padding: 20px;
+    margin-bottom: 12px;
+    cursor: pointer;
+    transition: transform 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .value-card-mini:active { transform: scale(0.98); }
+
+  .vcm-c { background: var(--c-light); }
+  .vcm-a { background: var(--a-light); }
+  .vcm-s { background: var(--s-light); }
+
+  .vcm-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 14px;
+  }
+
+  .vcm-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 22px;
+    font-weight: 400;
+  }
+
+  .vcm-c .vcm-title { color: var(--c); }
+  .vcm-a .vcm-title { color: var(--a); }
+  .vcm-s .vcm-title { color: var(--s); }
+
+  .vcm-badge {
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-weight: 500;
+  }
+
+  .vcm-c .vcm-badge { background: var(--c); color: white; }
+  .vcm-a .vcm-badge { background: var(--a); color: white; }
+  .vcm-s .vcm-badge { background: var(--s); color: white; }
+
+  .vcm-question {
+    font-size: 14px;
+    color: var(--ink);
+    line-height: 1.6;
+    font-weight: 300;
+    margin-bottom: 14px;
+  }
+
+  .vcm-scale {
+    display: flex;
+    gap: 6px;
+  }
+
+  .scale-btn {
+    flex: 1;
+    height: 36px;
+    border-radius: 8px;
+    border: 1.5px solid rgba(0,0,0,0.10);
+    background: white;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.15s;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 400;
+    color: var(--ink2);
+  }
+
+  .scale-btn:active { transform: scale(0.95); }
+
+  .vcm-c .scale-btn.selected { background: var(--c); color: white; border-color: var(--c); }
+  .vcm-a .scale-btn.selected { background: var(--a); color: white; border-color: var(--a); }
+  .vcm-s .scale-btn.selected { background: var(--s); color: white; border-color: var(--s); }
+
+  .checkin-summary {
+    background: var(--white);
+    border-radius: var(--radius);
+    padding: 20px;
+    margin-top: 4px;
+    display: none;
+  }
+
+  .summary-title {
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink3);
+    margin-bottom: 16px;
+  }
+
+  .summary-bars {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+
+  .sbar-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .sbar-label {
+    font-size: 12px;
+    width: 80px;
+    flex-shrink: 0;
+    color: var(--ink2);
+  }
+
+  .sbar-track {
+    flex: 1;
+    height: 6px;
+    background: var(--bg);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+
+  .sbar-fill {
+    height: 100%;
+    border-radius: 3px;
+    width: 0;
+    transition: width 0.8s cubic-bezier(0.4,0,0.2,1);
+  }
+
+  .sbar-fill.c { background: var(--c); }
+  .sbar-fill.a { background: var(--a); }
+  .sbar-fill.s { background: var(--s); }
+
+  .sbar-val {
+    font-size: 12px;
+    width: 24px;
+    text-align: right;
+    color: var(--ink3);
+  }
+
+  .summary-insight {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 16px;
+    font-style: italic;
+    color: var(--ink);
+    line-height: 1.6;
+    padding-top: 14px;
+    border-top: 1px solid var(--bg);
+  }
+
+  /* ── REGISTRO SCREEN ── */
+  .registro-header h2 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 26px;
+    font-weight: 300;
+    margin-bottom: 4px;
+  }
+
+  .registro-header p {
+    font-size: 13px;
+    color: var(--ink2);
+    line-height: 1.5;
+    margin-bottom: 20px;
+  }
+
+  .registro-form {
+    background: var(--white);
+    border-radius: var(--radius);
+    padding: 20px;
+    margin-bottom: 12px;
+  }
+
+  .form-label {
+    font-size: 10px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink3);
+    margin-bottom: 10px;
+    display: block;
+  }
+
+  .value-pills {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 14px;
+  }
+
+  .value-pill {
+    padding: 6px 14px;
+    border-radius: 20px;
+    border: 1.5px solid rgba(0,0,0,0.10);
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.15s;
+    background: white;
+    color: var(--ink2);
+  }
+
+  .value-pill.selected-c { background: var(--c); color: white; border-color: var(--c); }
+  .value-pill.selected-a { background: var(--a); color: white; border-color: var(--a); }
+  .value-pill.selected-s { background: var(--s); color: white; border-color: var(--s); }
+
+  .direction-btns {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+
+  .dir-btn {
+    padding: 12px;
+    border-radius: 10px;
+    border: 1.5px solid rgba(0,0,0,0.10);
+    background: white;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .dir-btn .dir-icon { font-size: 20px; margin-bottom: 4px; }
+  .dir-btn .dir-text { font-size: 12px; color: var(--ink2); }
+
+  .dir-btn.selected-acerca { background: #EAF4EE; border-color: var(--c); }
+  .dir-btn.selected-acerca .dir-text { color: var(--c); font-weight: 500; }
+  .dir-btn.selected-aleja { background: #FEF0F0; border-color: #D4656C; }
+  .dir-btn.selected-aleja .dir-text { color: #D4656C; font-weight: 500; }
+  .dir-btn.selected-neutro { background: #FFF8EC; border-color: #C49A2A; }
+  .dir-btn.selected-neutro .dir-text { color: #C49A2A; font-weight: 500; }
+  .dir-btn.selected-confuso { background: #F0EAF7; border-color: #7B4FAA; }
+  .dir-btn.selected-confuso .dir-text { color: #7B4FAA; font-weight: 500; }
+
+  .form-textarea {
+    width: 100%;
+    border: none;
+    background: var(--bg);
+    border-radius: 10px;
+    padding: 12px 14px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    color: var(--ink);
+    resize: none;
+    outline: none;
+    min-height: 64px;
+    line-height: 1.6;
+  }
+
+  .form-textarea::placeholder { color: var(--ink3); }
+
+  /* Log entries */
+  .log-entry {
+    background: var(--white);
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 10px;
+    animation: slideIn 0.3s ease;
+  }
+
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .log-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+
+  .log-chips {
+    display: flex;
+    gap: 5px;
+  }
+
+  .log-chip {
+    font-size: 10px;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-weight: 500;
+  }
+
+  .log-chip.c { background: var(--c-light); color: var(--c); }
+  .log-chip.a { background: var(--a-light); color: var(--a); }
+  .log-chip.s { background: var(--s-light); color: var(--s); }
+
+  .log-dir {
+    font-size: 11px;
+    color: var(--ink3);
+  }
+
+  .log-text {
+    font-size: 13px;
+    color: var(--ink);
+    line-height: 1.6;
+    font-weight: 300;
+  }
+
+  .log-date {
+    font-size: 10px;
+    color: var(--ink3);
+    margin-top: 6px;
+  }
+
+  /* ── BOTTOM NAV ── */
+  .bottom-nav {
+    position: fixed;
+    bottom: 0; left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    max-width: 420px;
+    background: rgba(248,245,240,0.92);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-top: 1px solid rgba(0,0,0,0.06);
+    display: flex;
+    padding: 10px 0 20px;
+  }
+
+  .nav-btn {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    cursor: pointer;
+    padding: 4px;
+    border: none;
+    background: none;
+    transition: all 0.2s;
+  }
+
+  .nav-icon {
+    font-size: 20px;
+    transition: transform 0.2s;
+  }
+
+  .nav-btn.active .nav-icon { transform: scale(1.15); }
+
+  .nav-label {
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink3);
+    transition: color 0.2s;
+  }
+
+  .nav-btn.active .nav-label { color: var(--ink); font-weight: 500; }
+
+  /* Empty state */
+  .empty-state {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--ink3);
+  }
+
+  .empty-state p {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 18px;
+    font-style: italic;
+    line-height: 1.6;
+  }
+
+</style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <div class="topbar-row">
+    <div class="greeting">Mi <em>brújula</em></div>
+    <div class="date-chip" id="dateChip"></div>
+  </div>
+</div>
+
+<!-- TABS -->
+<div class="tabs">
+  <div class="tab active" onclick="switchTab('decision')">¿Lo hago?</div>
+  <div class="tab" onclick="switchTab('checkin')">¿Cómo estoy?</div>
+  <div class="tab" onclick="switchTab('registro')">Mi semana</div>
+</div>
+
+<!-- ═══ SCREEN: DECISIÓN ═══ -->
+<div class="screen active" id="screen-decision">
+
+  <div class="decision-hero">
+    <div class="decision-label">Antes de decidir</div>
+    <div class="decision-question">¿Esto que voy a hacer me acerca o me aleja de lo que me importa?</div>
+    <textarea class="decision-input" id="decisionText" placeholder="¿Qué estás pensando hacer o decidir?" rows="2"></textarea>
+  </div>
+
+  <div class="value-meters">
+
+    <div class="meter-row">
+      <div class="meter-top">
+        <div class="meter-name">
+          <div class="meter-dot" style="background:var(--c)"></div>
+          Crecimiento
+        </div>
+        <div class="meter-label" id="lbl-c">Neutro</div>
+      </div>
+      <div class="slider-wrap">
+        <input type="range" min="-100" max="100" value="0" id="sl-c" oninput="updateSlider('c')">
+        <div class="slider-track">
+          <div class="slider-center"></div>
+          <div class="slider-fill" id="fill-c" style="background:var(--c)"></div>
+        </div>
+        <div class="slider-thumb" id="thumb-c" style="border-color:var(--c)"></div>
+      </div>
+      <div class="slider-labels">
+        <span>Me aleja</span>
+        <span>No cambia</span>
+        <span>Me acerca</span>
+      </div>
+    </div>
+
+    <div class="meter-row">
+      <div class="meter-top">
+        <div class="meter-name">
+          <div class="meter-dot" style="background:var(--a)"></div>
+          Afecto
+        </div>
+        <div class="meter-label" id="lbl-a">Neutro</div>
+      </div>
+      <div class="slider-wrap">
+        <input type="range" min="-100" max="100" value="0" id="sl-a" oninput="updateSlider('a')">
+        <div class="slider-track">
+          <div class="slider-center"></div>
+          <div class="slider-fill" id="fill-a" style="background:var(--a)"></div>
+        </div>
+        <div class="slider-thumb" id="thumb-a" style="border-color:var(--a)"></div>
+      </div>
+      <div class="slider-labels">
+        <span>Me aleja</span>
+        <span>No cambia</span>
+        <span>Me acerca</span>
+      </div>
+    </div>
+
+    <div class="meter-row">
+      <div class="meter-top">
+        <div class="meter-name">
+          <div class="meter-dot" style="background:var(--s)"></div>
+          Seguridad
+        </div>
+        <div class="meter-label" id="lbl-s">Neutro</div>
+      </div>
+      <div class="slider-wrap">
+        <input type="range" min="-100" max="100" value="0" id="sl-s" oninput="updateSlider('s')">
+        <div class="slider-track">
+          <div class="slider-center"></div>
+          <div class="slider-fill" id="fill-s" style="background:var(--s)"></div>
+        </div>
+        <div class="slider-thumb" id="thumb-s" style="border-color:var(--s)"></div>
+      </div>
+      <div class="slider-labels">
+        <span>Me aleja</span>
+        <span>No cambia</span>
+        <span>Me acerca</span>
+      </div>
+    </div>
+
+  </div>
+
+  <button class="btn-primary" onclick="showDecisionResult()">Ver qué me dice la brújula</button>
+
+  <div class="decision-result" id="decisionResult">
+    <div class="result-icon" id="resultIcon"></div>
+    <div class="result-text" id="resultText"></div>
+    <div class="result-sub" id="resultSub"></div>
+    <button class="btn-ghost" onclick="saveToLog()">Guardar en mi semana</button>
+    <button class="btn-ghost" onclick="resetDecision()">Nueva decisión</button>
+  </div>
+
+</div>
+
+<!-- ═══ SCREEN: CHECK-IN ═══ -->
+<div class="screen" id="screen-checkin">
+
+  <div class="checkin-header">
+    <h2>¿Cómo está mi semana?</h2>
+    <p>En esta semana, ¿qué tan presente ha estado cada valor? Mueve la escala como lo sientas.</p>
+  </div>
+
+  <div class="value-card-mini vcm-c">
+    <div class="vcm-header">
+      <div class="vcm-title">Crecimiento</div>
+      <div class="vcm-badge">Esta semana</div>
+    </div>
+    <div class="vcm-question">¿Hubo algo — pequeño o grande — donde sentiste que te expandiste o aprendiste algo?</div>
+    <div class="vcm-scale" id="scale-c">
+      <button class="scale-btn" onclick="setScale('c',1)">1</button>
+      <button class="scale-btn" onclick="setScale('c',2)">2</button>
+      <button class="scale-btn" onclick="setScale('c',3)">3</button>
+      <button class="scale-btn" onclick="setScale('c',4)">4</button>
+      <button class="scale-btn" onclick="setScale('c',5)">5</button>
+    </div>
+  </div>
+
+  <div class="value-card-mini vcm-a">
+    <div class="vcm-header">
+      <div class="vcm-title">Afecto</div>
+      <div class="vcm-badge">Esta semana</div>
+    </div>
+    <div class="vcm-question">¿Hubo un momento donde te sentiste vista, escuchada o conectada con alguien?</div>
+    <div class="vcm-scale" id="scale-a">
+      <button class="scale-btn" onclick="setScale('a',1)">1</button>
+      <button class="scale-btn" onclick="setScale('a',2)">2</button>
+      <button class="scale-btn" onclick="setScale('a',3)">3</button>
+      <button class="scale-btn" onclick="setScale('a',4)">4</button>
+      <button class="scale-btn" onclick="setScale('a',5)">5</button>
+    </div>
+  </div>
+
+  <div class="value-card-mini vcm-s">
+    <div class="vcm-header">
+      <div class="vcm-title">Seguridad</div>
+      <div class="vcm-badge">Esta semana</div>
+    </div>
+    <div class="vcm-question">¿Hubo algún momento donde sentiste suelo firme — aunque sea por un rato?</div>
+    <div class="vcm-scale" id="scale-s">
+      <button class="scale-btn" onclick="setScale('s',1)">1</button>
+      <button class="scale-btn" onclick="setScale('s',2)">2</button>
+      <button class="scale-btn" onclick="setScale('s',3)">3</button>
+      <button class="scale-btn" onclick="setScale('s',4)">4</button>
+      <button class="scale-btn" onclick="setScale('s',5)">5</button>
+    </div>
+  </div>
+
+  <div class="checkin-summary" id="checkinSummary">
+    <div class="summary-title">Tu semana en valores</div>
+    <div class="summary-bars">
+      <div class="sbar-row">
+        <div class="sbar-label">Crecimiento</div>
+        <div class="sbar-track"><div class="sbar-fill c" id="sb-c"></div></div>
+        <div class="sbar-val" id="sv-c">—</div>
+      </div>
+      <div class="sbar-row">
+        <div class="sbar-label">Afecto</div>
+        <div class="sbar-track"><div class="sbar-fill a" id="sb-a"></div></div>
+        <div class="sbar-val" id="sv-a">—</div>
+      </div>
+      <div class="sbar-row">
+        <div class="sbar-label">Seguridad</div>
+        <div class="sbar-track"><div class="sbar-fill s" id="sb-s"></div></div>
+        <div class="sbar-val" id="sv-s">—</div>
+      </div>
+    </div>
+    <div class="summary-insight" id="summaryInsight"></div>
+  </div>
+
+</div>
+
+<!-- ═══ SCREEN: REGISTRO ═══ -->
+<div class="screen" id="screen-registro">
+
+  <div class="registro-header">
+    <h2>Mi semana</h2>
+    <p>Registra momentos, decisiones o situaciones que tuvieron que ver con tus valores.</p>
+  </div>
+
+  <div class="registro-form">
+    <label class="form-label">¿Qué pasó?</label>
+    <textarea class="form-textarea" id="registroText" placeholder="Un momento, decisión o situación de esta semana..." rows="2"></textarea>
+
+    <label class="form-label" style="margin-top:14px">¿Qué valor tocó?</label>
+    <div class="value-pills">
+      <div class="value-pill" onclick="togglePill(this,'c')">Crecimiento</div>
+      <div class="value-pill" onclick="togglePill(this,'a')">Afecto</div>
+      <div class="value-pill" onclick="togglePill(this,'s')">Seguridad</div>
+    </div>
+
+    <label class="form-label">¿En qué dirección fue?</label>
+    <div class="direction-btns">
+      <div class="dir-btn" onclick="selectDir(this,'acerca')">
+        <div class="dir-icon">🧭</div>
+        <div class="dir-text">Me acercó</div>
+      </div>
+      <div class="dir-btn" onclick="selectDir(this,'aleja')">
+        <div class="dir-icon">↩️</div>
+        <div class="dir-text">Me alejó</div>
+      </div>
+      <div class="dir-btn" onclick="selectDir(this,'neutro')">
+        <div class="dir-icon">〰️</div>
+        <div class="dir-text">No sé bien</div>
+      </div>
+      <div class="dir-btn" onclick="selectDir(this,'confuso')">
+        <div class="dir-icon">🌀</div>
+        <div class="dir-text">Fue confuso</div>
+      </div>
+    </div>
+
+    <button class="btn-primary" onclick="saveRegistro()">Guardar momento</button>
+  </div>
+
+  <div id="logEntries">
+    <div class="empty-state">
+      <p>Aquí van apareciendo<br>los momentos de tu semana.</p>
+    </div>
+  </div>
+
+</div>
+
+<!-- BOTTOM NAV -->
+<div class="bottom-nav">
+  <button class="nav-btn active" onclick="switchTab('decision')">
+    <div class="nav-icon">🧭</div>
+    <div class="nav-label">Decidir</div>
+  </button>
+  <button class="nav-btn" onclick="switchTab('checkin')">
+    <div class="nav-icon">📊</div>
+    <div class="nav-label">Check-in</div>
+  </button>
+  <button class="nav-btn" onclick="switchTab('registro')">
+    <div class="nav-icon">📝</div>
+    <div class="nav-label">Mi semana</div>
+  </button>
+</div>
+
+<script>
+// ── STATE ──────────────────────────────────────────────────────
+const state = {
+  scales: { c: null, a: null, s: null },
+  selectedDir: null,
+  selectedPills: [],
+  log: JSON.parse(localStorage.getItem('brujula_log') || '[]')
+};
+
+// ── DATE ───────────────────────────────────────────────────────
+const days = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
+const months = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+const now = new Date();
+document.getElementById('dateChip').innerHTML =
+  days[now.getDay()] + '<br>' + now.getDate() + ' ' + months[now.getMonth()];
+
+// ── TABS ───────────────────────────────────────────────────────
+function switchTab(tab) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('screen-' + tab).classList.add('active');
+  const tabs = ['decision','checkin','registro'];
+  const idx = tabs.indexOf(tab);
+  document.querySelectorAll('.tab')[idx].classList.add('active');
+  document.querySelectorAll('.nav-btn')[idx].classList.add('active');
+  if (tab === 'registro') renderLog();
+}
+
+// ── SLIDERS ────────────────────────────────────────────────────
+function updateSlider(id) {
+  const input = document.getElementById('sl-' + id);
+  const fill = document.getElementById('fill-' + id);
+  const thumb = document.getElementById('thumb-' + id);
+  const lbl = document.getElementById('lbl-' + id);
+  const val = parseInt(input.value);
+  const pct = (val + 100) / 200; // 0 to 1
+  thumb.style.left = (pct * 100) + '%';
+  if (val > 10) {
+    fill.style.left = '50%';
+    fill.style.width = (pct * 100 - 50) + '%';
+    lbl.textContent = val > 60 ? 'Claramente me acerca' : 'Me acerca';
+    lbl.style.color = 'var(--c)';
+  } else if (val < -10) {
+    fill.style.left = (pct * 100) + '%';
+    fill.style.width = (50 - pct * 100) + '%';
+    lbl.textContent = val < -60 ? 'Claramente me aleja' : 'Me aleja';
+    lbl.style.color = '#D4656C';
+  } else {
+    fill.style.width = '0%';
+    lbl.textContent = 'Neutro';
+    lbl.style.color = 'var(--ink3)';
+  }
+}
+
+// init sliders
+['c','a','s'].forEach(id => updateSlider(id));
+
+function showDecisionResult() {
+  const c = parseInt(document.getElementById('sl-c').value);
+  const a = parseInt(document.getElementById('sl-a').value);
+  const s = parseInt(document.getElementById('sl-s').value);
+  const avg = (c + a + s) / 3;
+  const result = document.getElementById('decisionResult');
+  const icon = document.getElementById('resultIcon');
+  const text = document.getElementById('resultText');
+  const sub = document.getElementById('resultSub');
+
+  result.style.display = 'block';
+  result.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+  if (avg > 30) {
+    icon.textContent = '🧭';
+    text.textContent = 'La brújula apunta hacia tus valores.';
+    sub.textContent = 'Esta decisión parece alineada con lo que te importa. Eso no significa que sea fácil — solo que va en la dirección correcta.';
+  } else if (avg > 5) {
+    icon.textContent = '〰️';
+    text.textContent = 'Hay algo ahí, aunque no es claro del todo.';
+    sub.textContent = 'Algunos valores se acercan más que otros. Puede valer la pena preguntarte qué se sentiría diferente si ajustaras cómo lo haces.';
+  } else if (avg > -15) {
+    icon.textContent = '🤔';
+    text.textContent = 'La brújula no se mueve mucho con esto.';
+    sub.textContent = 'Ni se acerca ni se aleja especialmente de tus valores. Quizás la pregunta más útil sea: ¿qué estoy evitando al pensarlo tanto?';
+  } else {
+    icon.textContent = '↩️';
+    text.textContent = 'Algo en ti ya sabe la respuesta.';
+    sub.textContent = 'Esta decisión parece alejar de lo que te importa. No siempre se puede elegir el camino ideal — pero sí se puede elegir con conciencia.';
+  }
+
+  // store for log
+  state.pendingDecision = {
+    text: document.getElementById('decisionText').value,
+    c, a, s, avg
+  };
+}
+
+function saveToLog() {
+  if (!state.pendingDecision) return;
+  const d = state.pendingDecision;
+  if (!d.text.trim()) return;
+  const entry = {
+    type: 'decision',
+    text: d.text,
+    values: ['c','a','s'],
+    direction: d.avg > 10 ? 'acerca' : d.avg < -10 ? 'aleja' : 'neutro',
+    date: new Date().toLocaleDateString('es-MX', {day:'numeric',month:'short',weekday:'short'})
+  };
+  state.log.unshift(entry);
+  localStorage.setItem('brujula_log', JSON.stringify(state.log));
+  resetDecision();
+  switchTab('registro');
+}
+
+function resetDecision() {
+  ['c','a','s'].forEach(id => {
+    document.getElementById('sl-' + id).value = 0;
+    updateSlider(id);
+  });
+  document.getElementById('decisionText').value = '';
+  document.getElementById('decisionResult').style.display = 'none';
+  state.pendingDecision = null;
+}
+
+// ── CHECK-IN ───────────────────────────────────────────────────
+function setScale(val, num) {
+  const scale = document.getElementById('scale-' + val);
+  scale.querySelectorAll('.scale-btn').forEach((b,i) => {
+    b.classList.remove('selected');
+    if (i + 1 === num) b.classList.add('selected');
+  });
+  state.scales[val] = num;
+  checkAllScales();
+}
+
+function checkAllScales() {
+  const { c, a, s } = state.scales;
+  if (c === null || a === null || s === null) return;
+
+  const summary = document.getElementById('checkinSummary');
+  summary.style.display = 'block';
+  summary.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+  setTimeout(() => {
+    document.getElementById('sb-c').style.width = (c / 5 * 100) + '%';
+    document.getElementById('sb-a').style.width = (a / 5 * 100) + '%';
+    document.getElementById('sb-s').style.width = (s / 5 * 100) + '%';
+    document.getElementById('sv-c').textContent = c + '/5';
+    document.getElementById('sv-a').textContent = a + '/5';
+    document.getElementById('sv-s').textContent = s + '/5';
+  }, 100);
+
+  const min = Math.min(c, a, s);
+  const max = Math.max(c, a, s);
+  const avg = (c + a + s) / 3;
+  const names = { c: 'Crecimiento', a: 'Afecto', s: 'Seguridad' };
+  const lowest = Object.entries(state.scales).sort((x,y) => x[1] - y[1])[0][0];
+  const insight = document.getElementById('summaryInsight');
+
+  if (avg >= 4) {
+    insight.textContent = 'Fue una semana donde tus valores estuvieron bastante presentes. ¿Qué lo hizo posible?';
+  } else if (avg <= 2) {
+    insight.textContent = `Esta semana estuvo difícil. El valor que menos apareció fue ${names[lowest]}. ¿Qué necesitaría para estar un poco más presente la próxima semana?`;
+  } else if (max - min >= 2) {
+    insight.textContent = `Hay bastante diferencia entre tus valores esta semana. ${names[lowest]} estuvo más ausente. Eso vale la pena notarlo.`;
+  } else {
+    insight.textContent = 'Una semana regular — ni muy arriba ni muy abajo. A veces lo estable también es valioso.';
+  }
+}
+
+// ── REGISTRO ───────────────────────────────────────────────────
+function togglePill(el, val) {
+  const cls = 'selected-' + val;
+  if (el.classList.contains(cls)) {
+    el.classList.remove(cls);
+    state.selectedPills = state.selectedPills.filter(v => v !== val);
+  } else {
+    el.classList.add(cls);
+    state.selectedPills.push(val);
+  }
+}
+
+function selectDir(el, dir) {
+  document.querySelectorAll('.dir-btn').forEach(b => {
+    b.className = 'dir-btn';
+  });
+  el.classList.add('selected-' + dir);
+  state.selectedDir = dir;
+}
+
+function saveRegistro() {
+  const text = document.getElementById('registroText').value.trim();
+  if (!text) return;
+  const entry = {
+    type: 'manual',
+    text,
+    values: [...state.selectedPills],
+    direction: state.selectedDir || 'neutro',
+    date: new Date().toLocaleDateString('es-MX', {day:'numeric',month:'short',weekday:'short'})
+  };
+  state.log.unshift(entry);
+  localStorage.setItem('brujula_log', JSON.stringify(state.log));
+  // Reset form
+  document.getElementById('registroText').value = '';
+  document.querySelectorAll('.value-pill').forEach(p => p.className = 'value-pill');
+  document.querySelectorAll('.dir-btn').forEach(b => b.className = 'dir-btn');
+  state.selectedPills = [];
+  state.selectedDir = null;
+  renderLog();
+}
+
+const dirLabels = {
+  acerca: '🧭 Me acercó',
+  aleja: '↩️ Me alejó',
+  neutro: '〰️ No sé bien',
+  confuso: '🌀 Confuso'
+};
+
+function renderLog() {
+  const container = document.getElementById('logEntries');
+  if (state.log.length === 0) {
+    container.innerHTML = '<div class="empty-state"><p>Aquí van apareciendo<br>los momentos de tu semana.</p></div>';
+    return;
+  }
+  container.innerHTML = state.log.map(entry => `
+    <div class="log-entry">
+      <div class="log-meta">
+        <div class="log-chips">
+          ${entry.values.map(v => `<span class="log-chip ${v}">${v === 'c' ? 'Crecimiento' : v === 'a' ? 'Afecto' : 'Seguridad'}</span>`).join('')}
+        </div>
+        <div class="log-dir">${dirLabels[entry.direction] || ''}</div>
+      </div>
+      <div class="log-text">${entry.text}</div>
+      <div class="log-date">${entry.date}</div>
+    </div>
+  `).join('');
+}
+
+renderLog();
+</script>
+</body>
+</html>
